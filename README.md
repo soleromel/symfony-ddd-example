@@ -1,3 +1,9 @@
+![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
+![Symfony](https://img.shields.io/badge/Symfony-DDD-000000?logo=symfony&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+![Stars](https://img.shields.io/github/stars/salletti/symfony-ddd-example?style=flat&color=yellow)
+
+
 <p align="center">
   <a href="https://stefanoalletti.wordpress.com/">
     <img src="https://stefanoalletti.files.wordpress.com/2022/02/symfony_plus_ddd.png"/>
