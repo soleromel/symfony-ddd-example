@@ -175,7 +175,7 @@ Now the creation of the article can be done.
 ### How to use
 
 1) <pre>$ docker-compose exec php sh</pre>
-2) Create user: <pre>$ bin/concole app:create-user s.alletti@gmail.com p4$$word ROLE_EDITOR</pre>
+2) Create user: <pre>$ bin/console app:create-user s.alletti@gmail.com p4$$word ROLE_EDITOR</pre>
 3) Create category: <pre>POST https://localhost/api/categories/ </pre>
     <pre>
     {
