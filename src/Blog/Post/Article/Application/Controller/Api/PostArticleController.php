@@ -9,6 +9,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -31,15 +32,18 @@ final class PostArticleController extends AbstractController
             JSON_THROW_ON_ERROR
         );
 
-        $this->eventDispatcher->dispatch(new OnPublicationRequestedEvent(
+        $event = new OnPublicationRequestedEvent(
             $parameters['title'],
             $parameters['body'],
             $parameters['author'],
             $parameters['categorySlug'],
-        ));
+        );
 
-        return JsonResponse::fromJsonString(
-            $request->getSession()->get('last_article_created')
+        $this->eventDispatcher->dispatch($event);
+
+        return new JsonResponse(
+            ['id' => $event->getCreatedArticleId()],
+            Response::HTTP_CREATED
         );
     }
 }

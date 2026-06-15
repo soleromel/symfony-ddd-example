@@ -2,11 +2,13 @@
 
 namespace App\Blog\Post\Article\Domain\Repository;
 
+use App\Blog\Post\Article\Domain\Entity\ArticleId;
 use App\Blog\Post\Article\Domain\Entity\Comment;
 
 interface CommentRepositoryInterface
 {
-    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null);
+    /** @return Comment[] */
+    public function findByArticleId(ArticleId $articleId): array;
 
     public function save(Comment $comment): void;
 }

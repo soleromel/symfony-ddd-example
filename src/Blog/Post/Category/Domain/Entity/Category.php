@@ -23,9 +23,9 @@ class Category extends AggregateRoot
         $this->slug = $slug;
     }
 
-    public function getId(): string
+    public function getId(): CategoryId
     {
-        return $this->id;
+        return new CategoryId($this->id);
     }
 
     public function getName(): string

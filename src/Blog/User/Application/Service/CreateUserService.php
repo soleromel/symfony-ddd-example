@@ -7,32 +7,35 @@ namespace App\Blog\User\Application\Service;
 use App\Blog\User\Domain\Entity\Email;
 use App\Blog\User\Domain\Entity\User;
 use App\Blog\User\Domain\Repository\UserRepositoryInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Serializer\SerializerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class CreateUserService
 {
     private UserRepositoryInterface $userRepository;
     private EventDispatcherInterface $eventDispatcher;
-    private SerializerInterface $serializer;
+    private UserPasswordHasherInterface $passwordHasher;
 
     public function __construct(
         UserRepositoryInterface $userRepository,
         EventDispatcherInterface $eventDispatcher,
-        SerializerInterface $serializer
+        UserPasswordHasherInterface $passwordHasher
     ) {
         $this->userRepository = $userRepository;
         $this->eventDispatcher = $eventDispatcher;
-        $this->serializer = $serializer;
+        $this->passwordHasher = $passwordHasher;
     }
 
-    public function handle(string $email, array $roles, string $password): string
+    public function handle(string $email, array $roles, string $plainPassword): string
     {
         $user = User::registerUser(
-          new Email($email),
-          $roles,
-          $password
+            new Email($email),
+            $roles,
+            ''
         );
+
+        $hashedPassword = $this->passwordHasher->hashPassword($user, $plainPassword);
+        $user->setPassword($hashedPassword);
 
         $this->userRepository->save($user);
 
@@ -40,6 +43,6 @@ final class CreateUserService
             $this->eventDispatcher->dispatch($domainEvent);
         }
 
-        return $this->serializer->serialize($user, 'json');
+        return $user->getId();
     }
 }

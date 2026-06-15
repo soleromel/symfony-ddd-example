@@ -17,12 +17,11 @@ services:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
-            - '../src/Blog/Post/Domain/Entity/'
+            - '../src/Blog/*/Domain/'
+            - '../src/Blog/Post/*/Domain/'
+            - '../src/Shared/'
             - '../src/Kernel.php'
     
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\Blog\Post\Article\Application\ParamConverter\CreateCommentParamConverter:
-        tags:
-            - { name: request.param_converter, converter: CreateComment }

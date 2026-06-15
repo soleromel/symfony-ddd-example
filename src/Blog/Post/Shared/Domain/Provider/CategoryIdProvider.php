@@ -24,6 +24,6 @@ final class CategoryIdProvider implements CategoryIdProviderInterface
             throw new \InvalidArgumentException(\sprintf('category with slug %s not found', $slug));
         }
 
-        return $category->getId();
+        return $category->getId()->getValue();
     }
 }
