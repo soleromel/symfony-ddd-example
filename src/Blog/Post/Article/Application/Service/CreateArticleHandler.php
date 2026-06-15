@@ -11,34 +11,28 @@ use App\Blog\Post\Article\Domain\Entity\AuthorId;
 use App\Blog\Post\Article\Domain\Repository\ArticleRepositoryInterface;
 use App\Blog\Post\Shared\Domain\Entity\ValueObject\CategoryId;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 
 final class CreateArticleHandler implements MessageHandlerInterface
 {
     private ArticleRepositoryInterface $articleRepository;
     private EventDispatcherInterface $eventDispatcher;
-    private SerializerInterface $serializer;
-    private RequestStack $requestStack;
 
     public function __construct(
         ArticleRepositoryInterface $articleRepository,
         EventDispatcherInterface $eventDispatcher,
-        SerializerInterface $serializer,
-        RequestStack $requestStack,
     ) {
         $this->articleRepository = $articleRepository;
         $this->eventDispatcher = $eventDispatcher;
-        $this->serializer = $serializer;
-        $this->requestStack = $requestStack;
     }
 
-    public function __invoke(CreateArticleCommand $createArticleCommand): void
+    public function __invoke(CreateArticleCommand $createArticleCommand): string
     {
+        $articleId = new ArticleId(Uuid::uuid4()->toString());
+
         $article = Article::create(
-            new ArticleId(Uuid::uuid4()->toString()),
+            $articleId,
             $createArticleCommand->getTitle(),
             $createArticleCommand->getBody(),
             new AuthorId($createArticleCommand->getAuthor()),
@@ -47,13 +41,10 @@ final class CreateArticleHandler implements MessageHandlerInterface
 
         $this->articleRepository->save($article);
 
-        $this->requestStack->getSession()->set(
-            'last_article_created',
-            $this->serializer->serialize($article, 'json')
-        );
-
         foreach ($article->pullDomainEvents() as $domainEvent) {
             $this->eventDispatcher->dispatch($domainEvent);
         }
+
+        return $articleId->getValue();
     }
 }

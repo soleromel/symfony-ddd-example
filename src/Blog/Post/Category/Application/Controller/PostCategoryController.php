@@ -8,6 +8,7 @@ use App\Blog\Post\Category\Application\Model\CreateCategoryCommand;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\HandleTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -37,6 +38,8 @@ final class PostCategoryController extends AbstractController
             $parameters['slug']
         );
 
-        return JsonResponse::fromJsonString($this->handle($createCategoryCommand));
+        $categoryId = $this->handle($createCategoryCommand);
+
+        return new JsonResponse(['id' => $categoryId->getValue()], Response::HTTP_CREATED);
     }
 }

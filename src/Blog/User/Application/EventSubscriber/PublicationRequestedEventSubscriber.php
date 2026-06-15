@@ -47,7 +47,8 @@ final class PublicationRequestedEventSubscriber implements EventSubscriberInterf
             $event->getTitle(),
             $event->getBody(),
             $event->getAuthor(),
-            $event->getCategorySlug()
+            $event->getCategorySlug(),
+            $event
         ));
     }
 }

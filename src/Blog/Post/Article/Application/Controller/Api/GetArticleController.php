@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\HandleTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @Route("/api/articles/{id}", name="api_article", methods={"GET"})
@@ -18,15 +19,20 @@ final class GetArticleController extends AbstractController
 {
     use HandleTrait;
 
-    public function __construct(MessageBusInterface $messageBus)
+    private SerializerInterface $serializer;
+
+    public function __construct(MessageBusInterface $messageBus, SerializerInterface $serializer)
     {
         $this->messageBus = $messageBus;
+        $this->serializer = $serializer;
     }
 
     public function __invoke(string $id): JsonResponse
     {
-        $article = $this->handle(new FindArticleQuery($id));
+        $result = $this->handle(new FindArticleQuery($id));
 
-        return JsonResponse::fromJsonString($article);
+        return JsonResponse::fromJsonString(
+            $this->serializer->serialize($result, 'json')
+        );
     }
 }

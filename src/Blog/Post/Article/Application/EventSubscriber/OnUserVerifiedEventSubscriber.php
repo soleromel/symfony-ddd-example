@@ -8,11 +8,13 @@ use App\Blog\Post\Article\Application\Model\CreateArticleCommand;
 use App\Blog\Post\Shared\Domain\Provider\CategoryIdProviderInterface;
 use App\Blog\User\Application\Event\OnUserVerifiedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\HandleTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class OnUserVerifiedEventSubscriber implements EventSubscriberInterface
 {
-    private MessageBusInterface $messageBus;
+    use HandleTrait;
+
     private CategoryIdProviderInterface $categoryIdProvider;
 
     public function __construct(
@@ -32,14 +34,15 @@ final class OnUserVerifiedEventSubscriber implements EventSubscriberInterface
 
     public function createArticle(OnUserVerifiedEvent $event): void
     {
-        $createArticleCommand = new CreateArticleCommand();
-        $createArticleCommand->setTitle($event->getTitle());
-        $createArticleCommand->setBody($event->getBody());
-        $createArticleCommand->setAuthor($event->getAuthor());
-        $createArticleCommand->setCategory(
+        $createArticleCommand = new CreateArticleCommand(
+            $event->getTitle(),
+            $event->getBody(),
+            $event->getAuthor(),
             $this->categoryIdProvider->bySlug($event->getCategorySlug())
         );
 
-        $this->messageBus->dispatch($createArticleCommand);
+        $articleId = $this->handle($createArticleCommand);
+
+        $event->getOriginEvent()->setCreatedArticleId($articleId);
     }
 }
